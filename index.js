@@ -1,18 +1,19 @@
-const express = require("express");
-const { createProxyMiddleware } = require("http-proxy-middleware");
+import express from "express";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 const app = express();
 
-// Proxy semua request ke Binance FAPI
+// CORS (optional)
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 app.use("/", createProxyMiddleware({
   target: "https://fapi.binance.com",
   changeOrigin: true,
   secure: true,
-  pathRewrite: {
-    "^/": "/", // biar tetap sama
-  },
-  onProxyReq: (proxyReq, req, res) => {
-    // optional: set header tambahan
+  onProxyReq: (proxyReq) => {
     proxyReq.setHeader("Origin", "https://fapi.binance.com");
   }
 }));
